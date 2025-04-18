@@ -1,0 +1,12 @@
+bin*/
+tc*/
+build*/
+*.orig
+*.rej
+*~
+.hg/
+*.bak
+*.patch
+*.diff
+.vscode
+.vs

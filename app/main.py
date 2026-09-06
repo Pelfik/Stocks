@@ -45,6 +45,22 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/test-yahoo")
+def test_yahoo():
+    import yfinance as yf
+
+    df = yf.download(
+        "AAPL",
+        period="5d",
+        progress=False,
+        threads=False,
+    )
+
+    return {
+        "rows": len(df),
+        "columns": list(map(str, df.columns)),
+    }
+
 @app.post("/api/optimize")
 def api_optimize(request: OptimizeRequest):
     try:

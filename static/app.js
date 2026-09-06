@@ -108,10 +108,26 @@ button.addEventListener("click", async () => {
       })
     });
 
-    const data = await response.json();
+    const text = await response.text();
+
+    let data;
+
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      throw new Error(
+        `Server returned non-JSON response (${response.status}): ${text.slice(0, 300)}`
+      );
+    }
 
     if (!response.ok) {
-      throw new Error(data.detail || "Optimization failed");
+      throw new Error(
+        data?.detail || `Server error: HTTP ${response.status}`
+      );
+    }
+
+    if (!data) {
+      throw new Error(`Server returned an empty response (HTTP ${response.status})`);
     }
 
     document.getElementById("ret").textContent = pct(data.max_sharpe.return);

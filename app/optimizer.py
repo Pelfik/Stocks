@@ -84,7 +84,7 @@ def optimize(prices: pd.DataFrame, risk_free_rate: float = 0.03):
     # Efficient frontier between minimum-variance return and max individual expected return.
     target_min = min_var_stats[0]
     target_max = float(np.max(expected_returns))
-    target_returns = np.linspace(target_min, target_max, 40)
+    target_returns = np.linspace(target_min, target_max, 15)
 
     frontier = []
     for target in target_returns:

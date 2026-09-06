@@ -6,32 +6,33 @@ from .database import load_prices, save_prices
 
 
 def _download_ticker(ticker: str, start: str, end: str) -> pd.Series:
-    # yfinance treats end as exclusive, so add one day.
-    end_plus_one = (pd.Timestamp(end) + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    end_plus_one = (
+        pd.Timestamp(end) + pd.Timedelta(days=1)
+    ).strftime("%Y-%m-%d")
 
-    df = yf.download(
-        ticker,
+    ticker_obj = yf.Ticker(ticker)
+
+    df = ticker_obj.history(
         start=start,
         end=end_plus_one,
         auto_adjust=True,
-        progress=False,
-        threads=False,
+        timeout=10,
     )
 
     if df.empty:
         raise ValueError(f"No market data found for {ticker}")
 
-    close = df["Close"]
+    close = df["Close"].dropna().astype(float)
 
-    # yfinance can return a 1-column DataFrame with a MultiIndex.
-    if isinstance(close, pd.DataFrame):
-        close = close.iloc[:, 0]
+    close.index = pd.to_datetime(close.index)
 
-    close = close.dropna().astype(float)
-    close.index = pd.to_datetime(close.index).tz_localize(None)
+    if close.index.tz is not None:
+        close.index = close.index.tz_localize(None)
+
     close.name = ticker.upper()
 
     save_prices(ticker, close)
+
     return close
 
 
